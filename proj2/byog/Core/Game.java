@@ -35,100 +35,66 @@ public class Game {
      */
     public TETile[][] playWithInputString(String input) {
         Random random = new Random(seedGen(input));
-        int width = random.nextInt(60);
-        width+=50;
-        int height = random.nextInt(30);
-        height +=25;
-        int roomNum= random.nextInt(4);
-        roomNum+=10;
-        int[] xs = new int[roomNum];
-        int[] ys = new int[roomNum];
-        int[][] map = new int[300][300];
+        int width = random.nextInt(60)+50;
+        int height = random.nextInt(30)+25;
+        int[] xs = new int[100];
+        int[] ys = new int[100];
+        int[][] map = new int[width][height];
         for(int[] i:map){
             for(int j:i){
                 j=0;
             }
         }
 
-
-
-        int count =0;
-        while(count!=roomNum){
-            int dx= random.nextInt(width-1);
-            int dy= random.nextInt(height-1);
-                xs[count]=dx;
-                ys[count]=dy;
-                count++;
-        }
-
-
-
-
-        int[] finalRoom = new int[roomNum];
-        int countR=1;
-        //paint and numerate the rooms
-        for(int i=0;i<roomNum;i++){
-            if(map[xs[i]][ys[i]]==0){
-                for(int kk=0;kk<20;kk++){
-                    int w=random.nextInt(width/2);
-                    int h=random.nextInt(height/2);
+        int countR=0;
+        for(int i=0;i<15;i++) {
+            int dx = random.nextInt(width-4)+2;
+            int dy = random.nextInt(height-4)+2;
+            if (map[dx][dy] != 0) continue;
+            else {
+                for (int j = 0; j < 10; j++) {
+                    int w=random.nextInt(width/3);
+                    int h=random.nextInt(height/3);
                     w+=2;
                     h+=2;
-                    if(checkRoom(xs[i],ys[i],w,h,map,countR)){
-                        finalRoom[countR-1] = i;
+                    if(checkRoom(dx,dy,w,h,map)){
+                        xs[countR]=dx;
+                        ys[countR]=dy;
                         countR++;
                         break;
                     }
                 }
             }
         }
-        countR--;
+
 
         Set<Integer> connected = new HashSet<>();
         Set<Integer> inconnected = new HashSet<>();
-        connected.add(finalRoom[0]);
-        for(int i=1;i<countR;i++) inconnected.add(finalRoom[i]);
+        connected.add(0);
+        for(int i=1;i<countR;i++) inconnected.add(i);
         while(!inconnected.isEmpty()){
             int conee1 = randomSelect(connected,random);
             int conee2 = randomSelect(inconnected,random);
             inconnected.remove(conee2);
             connected.add(conee2);
             for(int i=Math.min(xs[conee1],xs[conee2]);i<=Math.max(xs[conee1],xs[conee2]);i++){
-                map[i][ys[conee1]] = countR;
+                map[i][ys[conee1]] = 1;
             }
             for(int i=Math.min(ys[conee1],ys[conee2]);i<=Math.max(ys[conee1],ys[conee2]);i++){
-                map[xs[conee2]][i] = countR;
+                map[xs[conee2]][i] = 1;
             }
         }
 
-        for(int i=1;i<width;i++){
-            for(int j=1;j<width;j++){
+        for(int i=1;i<width-1;i++){
+            for(int j=1;j<height-1;j++){
                 if(map[i][j]==0){
-                    if(map[i-1][j]>0||map[i+1][j]>0||map[i][j-1]>0||map[i][j+1]>0) map[i][j] =-1;
+                    if(map[i-1][j]>0||map[i+1][j]>0||map[i][j-1]>0||map[i][j+1]>0||map[i-1][j-1]>0||map[i+1][j+1]>0||map[i+1][j-1]>0||map[i-1][j+1]>0) map[i][j] =-1;
                 }
             }
         }
 
-        for(int i=1;i<width;i++){
-            if(map[i][0]==0){
-                if(map[i-1][0]>0||map[i+1][0]>0||map[i][1]>0) map[i][0] =-1;
-            }
-        }
-        for(int j=1;j<height;j++){
-            if(map[0][j]==0){
-                if(map[0][j-1]>0||map[0][j+1]>0||map[1][j]>0) map[0][j] =-1;
-            }
-        }
-
-        if(map[1][0]>0||map[0][1]>0) map[0][0] =-1;
 
         TETile[][] world = mapToWorld(map,width,height);
-
-/*        TERenderer ter = new TERenderer();
-        ter.initialize(width,height);
-        ter.renderFrame(world);*/
-
-
         return world;
     }
 
@@ -144,24 +110,20 @@ public class Game {
     }
 
     private long seedGen(String s){
-
         long rt = 0;
         char[] ch= s.toCharArray();
-        if(ch.length<3) {
-            for (int i = 0; i < ch.length; i++) {
-                rt += ch[i];
-            }
-        }else{
-            for (int i = 0; i < ch.length; i++) {
-                rt += ch[i];
-            }
+        long base = 1;
+        for (int i = 1; i < ch.length-1; i++) {
+            rt += (ch[i]-48)*base;
+            base*=10;
         }
+
         return rt;
     }
 
-
-
-    private boolean checkRoom(int x,int y,int w,int h,int[][] map,int count){
+    private boolean checkRoom(int x,int y,int w,int h,int[][] map){
+        if((x+w)>=map.length-3) return false;
+        if((y+h)>=map[0].length-3) return false;
         for(int i=0;i<w;i++){
             for(int j=0;j<h;j++){
                 if(map[x+i][y+j]!=0) return false;
@@ -169,7 +131,7 @@ public class Game {
         }
         for(int i=0;i<w;i++){
             for(int j=0;j<h;j++){
-                map[x+i][y+j]=count;
+                map[x+i][y+j]=1;
             }
         }
         return true;
