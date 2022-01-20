@@ -10,7 +10,7 @@ public class Percolation {
     boolean isPorous;
     int countOpen;
     public Percolation(int N){
-        disjointSets = new WeightedQuickUnionUF(N*N+1);
+        disjointSets = new WeightedQuickUnionUF(N*N+1+1);
         countOpen = 0;
         n=N;
         grid= new boolean[N][N];
@@ -21,6 +21,7 @@ public class Percolation {
         }
         for(int i=0;i<n;i++){
             disjointSets.union(i,N*N);
+            disjointSets.union(n*n-i-1,N*N+1);
         }
         isPorous=false;
     }             // create N-by-N grid, with all sites initially blocked
@@ -45,9 +46,8 @@ public class Percolation {
             connect(row,col,row,col+1);
         } catch (Exception e){}
 
-        if(row==n-1){
-            if(isFull(row,col)) isPorous=true;
-        }
+        if(disjointSets.connected(rowColToInt(row,col),n*n+1))isPorous=true;
+
     }       // open the site (row, col) if it is not open already
 
 
