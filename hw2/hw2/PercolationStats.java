@@ -26,7 +26,7 @@ public class PercolationStats {
     public double confidenceLow()                 {return confidenceLow;}                 // low endpoint of 95% confidence interval
     public double confidenceHigh() {return confidenceHigh;}                                // high endpoint of 95% confidence interval
     private void doStuff(int N,int T){
-        double[] results = new double[N];
+        double[] results = new double[T];
         for(int i=0;i<T;i++){
             results[i]=doEx(N);
         }

@@ -46,7 +46,7 @@ public class Percolation {
             connect(row,col,row,col+1);
         } catch (Exception e){}
 
-        if(disjointSets.connected(rowColToInt(row,col),n*n+1))isPorous=true;
+        if(disjointSets.connected(rowColToInt(row,col),n*n+1)&&isFull(row,col))isPorous=true;
 
     }       // open the site (row, col) if it is not open already
 
