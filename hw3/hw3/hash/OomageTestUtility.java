@@ -1,5 +1,8 @@
 package hw3.hash;
 
+import edu.princeton.cs.algs4.In;
+
+import java.util.Arrays;
 import java.util.List;
 
 public class OomageTestUtility {
@@ -12,6 +15,18 @@ public class OomageTestUtility {
          * and ensure that no bucket has fewer than N / 50
          * Oomages and no bucket has more than N / 2.5 Oomages.
          */
-        return false;
+        double n = oomages.size();
+        int[] count = new int[M];
+        for(Oomage o:oomages){
+            int bucketNum = (o.hashCode() & 0x7FFFFFFF) % M;
+            count[bucketNum] +=1;
+        }
+        int max = Arrays.stream(count).max().getAsInt();
+        int min = Arrays.stream(count).min().getAsInt();
+
+        double upperBound = n/2.5;
+        double lowerBound = n/50;
+        if(max<upperBound&&min>lowerBound) return true;
+        else return false;
     }
 }
