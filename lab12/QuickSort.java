@@ -44,16 +44,50 @@ public class QuickSort {
      * @param greater   An empty Queue. When the function completes, this queue will contain
      *                  all of the items in unsorted that are greater than the given pivot.
      */
-    private static <Item extends Comparable> void partition(
-            Queue<Item> unsorted, Item pivot,
-            Queue<Item> less, Queue<Item> equal, Queue<Item> greater) {
+    private static <Item extends Comparable> void partition(Queue<Item> unsorted, Item pivot, Queue<Item> less, Queue<Item> equal, Queue<Item> greater) {
         // Your code here!
+        for(Item item:unsorted){
+            int de = item.compareTo(pivot);
+            if(de<0){
+                less.enqueue(item);
+            } else if(de==0){
+                equal.enqueue(item);
+            } else if(de>0){
+                greater.enqueue(item);
+            }
+        }
     }
 
     /** Returns a Queue that contains the given items sorted from least to greatest. */
-    public static <Item extends Comparable> Queue<Item> quickSort(
-            Queue<Item> items) {
+    public static <Item extends Comparable> Queue<Item> quickSort(Queue<Item> items) {
         // Your code here!
-        return items;
+        if(items.size()<=1) return items;
+        else {
+            Queue<Item> unsorted = items;
+            Item pivot = getRandomItem(items);
+            Queue<Item> less = new Queue<>();
+            Queue<Item> equal = new Queue<>();
+            Queue<Item> greater = new Queue<>();
+            partition(unsorted,pivot,less,equal,greater);
+            return catenate(catenate(less,equal),greater);
+        }
+    }
+
+    public static void main(String[] args){
+        Queue<String> q = new Queue<>();
+        q.enqueue("haha");
+        q.enqueue("apple");
+        q.enqueue("banana");
+        q.enqueue("cimen");
+        q.enqueue("cimen");
+        q.enqueue("cimen");
+        q.enqueue("cimen");
+        q.enqueue("cimen");
+        q.enqueue("cimen");
+
+        System.out.println(q);
+        Queue<String> after = QuickSort.quickSort(q);
+        System.out.println(q);
+        System.out.println(after);
     }
 }
