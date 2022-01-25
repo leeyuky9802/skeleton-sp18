@@ -1,5 +1,4 @@
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,8 +24,20 @@ public class Router {
      */
     public static List<Long> shortestPath(GraphDB g, double stlon, double stlat,
                                           double destlon, double destlat) {
-        return null; // FIXME
+        long st = g.closest(stlon,stlat);
+        long dest = g.closest(destlon, destlat);
+        SPHelper sp = new SPHelper(g,st,dest);
+        AStarNode end = sp.rt;
+
+        List<Long> rt = new ArrayList<>();
+        while(end.previous!=null){
+            rt.add(0,end.id);
+            end = end.previous;
+        }
+        rt.add(0,end.id);
+        return rt; // FIXME
     }
+
 
     /**
      * Create the list of directions corresponding to a route on the graph.

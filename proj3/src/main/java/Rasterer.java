@@ -8,9 +8,89 @@ import java.util.Map;
  * not draw the output correctly.
  */
 public class Rasterer {
+    public static final double ROOT_ULLAT = 37.892195547244356, ROOT_ULLON = -122.2998046875,
+            ROOT_LRLAT = 37.82280243352756, ROOT_LRLON = -122.2119140625;
+    double[] lonDPP;
+    double[] lon;
+    double[] lat;
+    private double ullon,ullat,lrlon,lrlat;
+    int ulx,uly,lrx,lry;
+    private double rasterUllon,rasterUllat,rasterLrlon,rasterLrlat;
+    int depth;
+
+    private int getDepth(double dpp){
+        for(int i=0;i<8;i++){
+            if(lonDPP[i]<dpp) return i;
+        }
+        return 7;
+    }
+
+    private void calcResult(){
+        ulx= xAxis(ullon);
+        uly= yAxis(ullat);
+        lrx= xAxis(lrlon);
+        lry= yAxis(lrlat);
+        rasterUllon = calcRasterX(ulx) + ROOT_ULLON;
+        rasterUllat = -calcRasterY(uly) + ROOT_ULLAT;
+        rasterLrlon = calcRasterX(lrx) + ROOT_ULLON+lon[depth];
+        rasterLrlat = -calcRasterY(lry) + ROOT_ULLAT-lat[depth];
+    }
+
+    private double calcRasterX(int i){
+        double rt = 0;
+        for(int j=i;j>0;j--){
+            rt+=lon[depth];
+        }
+        return rt;
+    }
+
+    private double calcRasterY(int i){
+        double rt = 0;
+        for(int j=i;j>0;j--){
+            rt+=lat[depth];
+        }
+        return rt;
+    }
+
+    private int xAxis(double offset){
+        double rootLength = Math.abs(ROOT_ULLON-ROOT_LRLON);
+        double target = Math.abs(offset-ROOT_ULLON);
+        int mult= (int) Math.pow(2,depth);
+        double ratio = target/rootLength;
+        double rt = ratio *mult;
+        return (int) rt;
+    }
+
+    private int yAxis(double offset){
+        double rootLength = Math.abs(ROOT_ULLAT-ROOT_LRLAT);
+        double target = Math.abs(offset-ROOT_ULLAT);
+        int mult= (int) Math.pow(2,depth);
+        double ratio = target/rootLength;
+        double rt = ratio *mult;
+        return (int) rt;
+    }
+
+    //take tha map and set the values
+    private void setValues(Map<String,Double> map){
+        ullon= map.get("ullon");
+        ullat= map.get("ullat");
+        lrlon= map.get("lrlon");
+        lrlat= map.get("lrlat");
+        depth = getDepth(Math.abs(ullon-lrlon)/map.get("w"));
+    }
 
     public Rasterer() {
-        // YOUR CODE HERE
+        lonDPP = new double[8];
+        lat = new double[8];
+        lon = new double[8];
+        lonDPP[0] = Math.abs(ROOT_ULLON-ROOT_LRLON)/256;
+        lon[0] = Math.abs(ROOT_ULLON-ROOT_LRLON);
+        lat[0] = Math.abs(ROOT_ULLAT-ROOT_LRLAT);
+        for(int i=1;i<8;i++){
+            lonDPP[i] = lonDPP[i-1]/2;
+            lon[i] = lon[i-1]/2;
+            lat[i] = lat[i-1]/2;
+        }
     }
 
     /**
@@ -44,8 +124,17 @@ public class Rasterer {
     public Map<String, Object> getMapRaster(Map<String, Double> params) {
         // System.out.println(params);
         Map<String, Object> results = new HashMap<>();
-        System.out.println("Since you haven't implemented getMapRaster, nothing is displayed in "
-                           + "your browser.");
+        setValues(params);
+        calcResult();
+        results.put("render_grid",RasterHelper.addImages(ulx,uly,lrx,lry,depth));
+        results.put("raster_ul_lon",rasterUllon);
+        results.put("raster_ul_lat",rasterUllat);
+        results.put("raster_lr_lon",rasterLrlon);
+        results.put("raster_lr_lat",rasterLrlat);
+        results.put("depth",depth);
+        results.put("query_success",true);
+        System.out.println("Since you haven't implemented getMapRaster, nothing is displayed in "+ "your browser.");
+        System.out.println(results);
         return results;
     }
 

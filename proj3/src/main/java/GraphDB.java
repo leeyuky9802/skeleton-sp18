@@ -6,7 +6,7 @@ import java.io.IOException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import java.util.ArrayList;
+import java.util.*;
 
 /**
  * Graph for storing all of the intersection (vertex) and road (edge) information.
@@ -18,6 +18,7 @@ import java.util.ArrayList;
  * @author Alan Yao, Josh Hug
  */
 public class GraphDB {
+    public Set<Long> count = new HashSet<>();
     /** Your instance variables for storing the graph. You should consider
      * creating helper classes, e.g. Node, Edge, etc. */
 
@@ -26,6 +27,7 @@ public class GraphDB {
      * You do not need to modify this constructor, but you're welcome to do so.
      * @param dbPath Path to the XML file to be parsed.
      */
+    Map<Long,Node> graph = new HashMap<>();
     public GraphDB(String dbPath) {
         try {
             File inputFile = new File(dbPath);
@@ -57,7 +59,11 @@ public class GraphDB {
      *  we can reasonably assume this since typically roads are connected.
      */
     private void clean() {
-        // TODO: Your code here.
+        for(long id:this.vertices()){
+            if(graph.get(id).ways.size()==0){
+                graph.remove(id);
+            }
+        }
     }
 
     /**
@@ -66,7 +72,9 @@ public class GraphDB {
      */
     Iterable<Long> vertices() {
         //YOUR CODE HERE, this currently returns only an empty list.
-        return new ArrayList<Long>();
+        ArrayList<Long> rt = new ArrayList<>();
+        rt.addAll(graph.keySet());
+        return rt;
     }
 
     /**
@@ -75,7 +83,11 @@ public class GraphDB {
      * @return An iterable of the ids of the neighbors of v.
      */
     Iterable<Long> adjacent(long v) {
-        return null;
+        ArrayList<Long> rt = new ArrayList<>();
+        for(Way way:graph.get(v).ways){
+            rt.add(way.theOtherEnd.id);
+        }
+        return rt;
     }
 
     /**
@@ -136,7 +148,16 @@ public class GraphDB {
      * @return The id of the node in the graph closest to the target.
      */
     long closest(double lon, double lat) {
-        return 0;
+        long colestNd = 0;
+        double minDis=Double.MAX_VALUE;
+        Iterable<Long> haha= vertices();
+        for(long id:haha){
+            if(this.distance(lon,lat,graph.get(id).lon,graph.get(id).lat)<minDis){
+                colestNd = id;
+                minDis = this.distance(lon,lat,graph.get(id).lon,graph.get(id).lat);
+            }
+        }
+        return colestNd;
     }
 
     /**
@@ -145,7 +166,7 @@ public class GraphDB {
      * @return The longitude of the vertex.
      */
     double lon(long v) {
-        return 0;
+        return graph.get(v).lon;
     }
 
     /**
@@ -154,6 +175,6 @@ public class GraphDB {
      * @return The latitude of the vertex.
      */
     double lat(long v) {
-        return 0;
+        return graph.get(v).lat;
     }
 }
